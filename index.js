@@ -93,6 +93,7 @@ function validateTelegramInitData(initDataRaw) {
         return { ok: false, error: 'bot token 未配置或 initData 缺失' };
     }
     try {
+        const debugMode = process.env.DEBUG_TG === '1';
         const params = new URLSearchParams(initDataRaw);
         const hash = params.get('hash');
         if (!hash) {
@@ -107,7 +108,13 @@ function validateTelegramInitData(initDataRaw) {
         const dataCheckString = pairs.join('\n');
         const secret = crypto.createHash('sha256').update(TELEGRAM_BOT_TOKEN).digest();
         const hmac = crypto.createHmac('sha256', secret).update(dataCheckString).digest('hex');
-        if (process.env.DEBUG_TG === '1') {
+        const debugData = {
+            tokenHead: TELEGRAM_BOT_TOKEN.slice(0, 8),
+            dataCheckString,
+            hashHead: hash.slice(0, 16),
+            hmacHead: hmac.slice(0, 16),
+        };
+        if (debugMode) {
             console.log('[tg-debug] token head', TELEGRAM_BOT_TOKEN.slice(0, 8));
             console.log('[tg-debug] dataCheckString', dataCheckString);
             console.log('[tg-debug] hash from client', hash.slice(0, 16));
@@ -115,7 +122,7 @@ function validateTelegramInitData(initDataRaw) {
         }
         const ok = hmac === hash;
         if (!ok) {
-            return { ok: false, error: 'hash 校验失败' };
+            return { ok: false, error: 'hash 校验失败', debug: debugMode ? debugData : undefined };
         }
         const authDate = Number(params.get('auth_date') || 0);
         if (Number.isFinite(authDate)) {
@@ -130,7 +137,7 @@ function validateTelegramInitData(initDataRaw) {
         } catch {
             user = {};
         }
-        return { ok: true, user };
+        return { ok: true, user, debug: debugMode ? debugData : undefined };
     } catch (e) {
         console.error('validateTelegramInitData error', e);
         return { ok: false, error: '校验异常' };
