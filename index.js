@@ -107,6 +107,12 @@ function validateTelegramInitData(initDataRaw) {
         const dataCheckString = pairs.join('\n');
         const secret = crypto.createHash('sha256').update(TELEGRAM_BOT_TOKEN).digest();
         const hmac = crypto.createHmac('sha256', secret).update(dataCheckString).digest('hex');
+        if (process.env.DEBUG_TG === '1') {
+            console.log('[tg-debug] token head', TELEGRAM_BOT_TOKEN.slice(0, 8));
+            console.log('[tg-debug] dataCheckString', dataCheckString);
+            console.log('[tg-debug] hash from client', hash.slice(0, 16));
+            console.log('[tg-debug] hmac calculated', hmac.slice(0, 16));
+        }
         const ok = hmac === hash;
         if (!ok) {
             return { ok: false, error: 'hash 校验失败' };
