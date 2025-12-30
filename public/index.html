@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ZyntraTON · TON Mini App</title>
-  <link rel="preconnect" href="https://unpkg.com" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
   <link rel="stylesheet" href="./styles.css" />
-  <script defer src="https://unpkg.com/@tonconnect/ui@2.0.6/dist/tonconnect-ui.min.js"></script>
+  <script defer src="/lib/tonconnect-ui.min.js"></script>
   <script type="module" defer src="./main.js"></script>
 </head>
 <body>
@@ -30,34 +28,45 @@
         <h1>TON Mini App</h1>
         <p class="muted">ZyntraTON: connect TON wallet and post anonymously with ZK identity.</p>
       </div>
-      <div id="ton-connect-btn"></div>
+      <div class="hero-actions">
+        <button id="ton-connect-open-top">Connect wallet</button>
+        <div id="ton-connect-btn" aria-hidden="true"></div>
+        <button id="open-post-modal" class="ghost">Anonymous post</button>
+      </div>
     </header>
 
     <section class="grid">
       <article class="card">
         <h2>Telegram Identity</h2>
-        <p class="muted">Use Telegram Mini App initData to verify on backend.</p>
         <div id="tg-status" class="pill warning">Not verified</div>
         <pre id="tg-user" class="mono muted"></pre>
-        <button id="tg-verify-btn" class="ghost">Verify again</button>
       </article>
 
       <article class="card">
         <h2>On-chain Login</h2>
-        <p class="muted">Login with TonConnect (session binding only, no transaction).</p>
         <div class="stack">
           <div id="wallet-status" class="pill warning">Not connected</div>
-          <div class="btn-row">
-            <button id="ton-connect-open">Connect wallet</button>
-            <button id="ton-connect-disconnect" class="ghost">Disconnect</button>
-          </div>
         </div>
       </article>
     </section>
 
-    <section class="card post-card">
-      <h2>Post (auto identity & proof)</h2>
-      <p class="muted">One-click: generate local identity → register commitment → fetch Merkle proof → generate ZK proof → post.</p>
+    <section class="card">
+      <h2>Latest posts</h2>
+      <div id="reports" class="list"></div>
+      <button id="refresh-reports" class="ghost">Refresh list</button>
+    </section>
+  </div>
+
+  <div id="post-modal" class="modal form-modal hidden">
+    <div class="modal-content">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">ZyntraTON</p>
+          <h3>Anonymous post</h3>
+          <p class="muted small-text">Generate local identity → register commitment → fetch Merkle proof → generate ZK proof → post.</p>
+        </div>
+        <button id="post-modal-close" class="ghost small">Close</button>
+      </div>
       <div class="form-col">
         <input id="post-title" placeholder="Title" />
         <textarea id="post-content" rows="4" placeholder="Content"></textarea>
@@ -67,13 +76,7 @@
         </div>
         <pre id="post-output" class="mono muted"></pre>
       </div>
-    </section>
-
-    <section class="card">
-      <h2>Latest posts</h2>
-      <div id="reports" class="list"></div>
-      <button id="refresh-reports" class="ghost">Refresh list</button>
-    </section>
+    </div>
   </div>
 </body>
 </html>

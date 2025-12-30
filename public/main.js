@@ -10,6 +10,8 @@ const DEFAULT_MESSAGE_PREFIX = 'zyntraton';
 const modalEl = document.getElementById('modal');
 const modalTitleEl = document.getElementById('modal-title');
 const modalDescEl = document.getElementById('modal-desc');
+const postModalEl = document.getElementById('post-modal');
+const postModalCloseEl = document.getElementById('post-modal-close');
 
 function toast(msg, type = 'info') {
   let el = document.querySelector('.toast');
@@ -225,16 +227,17 @@ async function autoPost() {
 }
 
 async function verifyTelegram() {
+  if (tgUserEl) {
+    tgUserEl.textContent = '';
+  }
   if (!window.Telegram || !window.Telegram.WebApp) {
     tgStatusEl.textContent = 'Not Telegram environment';
     tgStatusEl.className = 'pill error';
-    tgUserEl.textContent = '';
     return;
   }
   const initData = window.Telegram.WebApp.initData || '';
   tgStatusEl.textContent = 'Verifying...';
   tgStatusEl.className = 'pill warning';
-  tgUserEl.textContent = '';
   try {
     const data = await fetchJson('/tg/verify', {
       method: 'POST',
@@ -242,12 +245,11 @@ async function verifyTelegram() {
     });
     tgStatusEl.textContent = 'Verified';
     tgStatusEl.className = 'pill success';
-    tgUserEl.textContent = JSON.stringify(data.user || {}, null, 2);
+    if (tgUserEl) tgUserEl.textContent = '';
     toast('Telegram verified');
   } catch (e) {
     tgStatusEl.textContent = 'Verify failed';
     tgStatusEl.className = 'pill error';
-    tgUserEl.textContent = e.message;
     toast(`Telegram verify failed: ${e.message}`, 'error');
   }
 }
@@ -288,8 +290,25 @@ function initTonConnect() {
 }
 
 async function openTonConnect() {
-  if (!tonConnectUI) return;
-  await tonConnectUI.connectWallet();
+  if (!tonConnectUI) {
+    try {
+      initTonConnect();
+      // give TonConnect a tick to mount
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    } catch (e) {
+      toast('TonConnect init failed', 'error');
+      return;
+    }
+  }
+  if (!tonConnectUI) {
+    toast('TonConnect not ready', 'error');
+    return;
+  }
+  try {
+    await tonConnectUI.connectWallet();
+  } catch (e) {
+    toast(`Connect failed: ${e.message || e}`, 'error');
+  }
 }
 
 async function disconnectTonConnect() {
@@ -306,10 +325,19 @@ function bindEvents() {
   if (resetBtn) resetBtn.addEventListener('click', resetIdentity);
   const tgBtn = document.getElementById('tg-verify-btn');
   if (tgBtn) tgBtn.addEventListener('click', verifyTelegram);
-  const tonOpen = document.getElementById('ton-connect-open');
-  const tonDisconnect = document.getElementById('ton-connect-disconnect');
-  if (tonOpen) tonOpen.addEventListener('click', openTonConnect);
-  if (tonDisconnect) tonDisconnect.addEventListener('click', disconnectTonConnect);
+  const tonOpenTop = document.getElementById('ton-connect-open-top');
+  if (tonOpenTop) tonOpenTop.addEventListener('click', openTonConnect);
+  const walletStatus = document.getElementById('wallet-status');
+  if (walletStatus) walletStatus.addEventListener('click', openTonConnect);
+  const openPostModalBtn = document.getElementById('open-post-modal');
+  if (openPostModalBtn) openPostModalBtn.addEventListener('click', () => {
+    if (postModalEl) postModalEl.classList.remove('hidden');
+  });
+  if (postModalCloseEl) {
+    postModalCloseEl.addEventListener('click', () => {
+      if (postModalEl) postModalEl.classList.add('hidden');
+    });
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {

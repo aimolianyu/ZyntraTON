@@ -24,22 +24,22 @@ body {
     linear-gradient(160deg, #0f1625 0%, #0d1220 60%, #0b101c 100%);
   color: var(--text);
   min-height: 100vh;
-  padding: 32px;
+  padding: 16px;
 }
 
 .app {
   max-width: 960px;
-  margin: 0 auto 64px;
+  margin: 0 auto 40px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 16px;
   box-shadow: var(--shadow);
 }
 
@@ -57,14 +57,33 @@ body {
   display: none;
 }
 
+.form-modal .modal-content {
+  max-width: 880px;
+  width: 94vw;
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  grid-column: 1;
+}
+
+.small-text {
+  font-size: 12px;
+}
+
 .modal-content {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px 20px;
   min-width: 260px;
-  display: grid;
-  grid-template-columns: auto 1fr;
   gap: 12px;
   align-items: center;
   box-shadow: var(--shadow);
@@ -110,6 +129,10 @@ h1, h2 {
   margin: 4px 0 8px;
 }
 
+h2 {
+  font-size: 18px;
+}
+
 p {
   margin: 4px 0;
 }
@@ -129,7 +152,13 @@ p {
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  gap: 12px;
+}
+
+@media (min-width: 420px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .form-row {
@@ -139,10 +168,44 @@ p {
   margin: 12px 0;
 }
 
+#tg-user {
+  display: none;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#open-post-modal {
+  background: var(--accent);
+  color: #0c111c;
+  border: 1px solid var(--accent);
+}
+
+#open-post-modal:hover {
+  box-shadow: 0 6px 18px rgba(70, 174, 247, 0.3);
+  transform: translateY(-1px);
+}
+
+#ton-connect-btn {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.tc-modal__overlay {
+  background: transparent !important;
+}
+
 .form-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  grid-column: 2;
 }
 
 input {
@@ -166,6 +229,27 @@ textarea {
   min-height: 120px;
   line-height: 1.5;
   transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.form-modal textarea {
+  min-height: 140px;
+}
+
+.form-modal h3 {
+  margin: 4px 0 8px;
+}
+
+.form-modal .modal-head button {
+  align-self: flex-start;
+}
+
+@media (max-width: 640px) {
+  .form-modal .modal-content {
+    grid-template-columns: 1fr;
+  }
+  .form-modal .form-col {
+    grid-column: 1;
+  }
 }
 
 input:focus,
