@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post Detail · ZyntraTON</title>
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="card">
+      <div>
+        <p class="eyebrow">ZyntraTON</p>
+        <h1>Post Detail</h1>
+        <p class="muted">View one anonymous post and its metadata.</p>
+      </div>
+      <a href="/" class="ghost" style="padding:10px 14px; text-decoration:none;">Back</a>
+    </header>
+
+    <section class="card" id="detail">
+      <p class="muted">Loading...</p>
+    </section>
+  </div>
+  <div class="toast"></div>
+  <script type="module">
+    const API_BASE = '';
+    const detailEl = document.getElementById('detail');
+
+    function toast(msg) {
+      const el = document.querySelector('.toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1800);
+    }
+
+    async function fetchJson(path) {
+      const res = await fetch(`${API_BASE}${path}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || res.statusText);
+      }
+      return res.json();
+    }
+
+    function render(item) {
+      detailEl.innerHTML = `
+        <div class="item">
+          <div class="item-head">
+            <div>
+              <strong>${item.title}</strong>
+            </div>
+            <div class="muted mono">ID: ${item.id}</div>
+          </div>
+          <p class="muted">${item.content}</p>
+          <p class="muted mono">nullifier: ${item.nullifierHash}</p>
+          <p class="muted">${new Date(item.createdAt).toLocaleString()}</p>
+        </div>
+      `;
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (!id) {
+        detailEl.innerHTML = '<p class="muted">Missing id</p>';
+        return;
+      }
+      try {
+        const data = await fetchJson(`/reports/${encodeURIComponent(id)}`);
+        if (!data.ok || !data.item) {
+          throw new Error('Not found');
+        }
+        render(data.item);
+      } catch (e) {
+        detailEl.innerHTML = `<p class="muted">Load failed: ${e.message}</p>`;
+        toast(e.message);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
