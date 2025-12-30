@@ -106,13 +106,19 @@ function validateTelegramInitData(initDataRaw) {
         }
         pairs.sort();
         const dataCheckString = pairs.join('\n');
-        const secret = crypto.createHash('sha256').update(TELEGRAM_BOT_TOKEN).digest();
+        // Telegram Web App data check: secret = HMAC_SHA256("WebAppData", botToken)
+        const secret = crypto
+            .createHmac('sha256', 'WebAppData')
+            .update(TELEGRAM_BOT_TOKEN)
+            .digest();
         const hmac = crypto.createHmac('sha256', secret).update(dataCheckString).digest('hex');
         const debugData = {
             tokenHead: TELEGRAM_BOT_TOKEN.slice(0, 8),
             dataCheckString,
             hashHead: hash.slice(0, 16),
             hmacHead: hmac.slice(0, 16),
+            hashFull: debugMode ? hash : undefined,
+            hmacFull: debugMode ? hmac : undefined,
         };
         if (debugMode) {
             console.log('[tg-debug] token head', TELEGRAM_BOT_TOKEN.slice(0, 8));
